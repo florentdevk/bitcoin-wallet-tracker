@@ -1,10 +1,9 @@
-includes:
-    - vendor/phpstan/phpstan-symfony/extension.neon
-
 parameters:
     level: 6
     paths:
         - src
-        - tests
+    excludePaths:
+        - src/Kernel.php
+        - src/Schedule.php
     symfony:
         containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
