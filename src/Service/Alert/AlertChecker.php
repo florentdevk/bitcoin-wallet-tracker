@@ -16,6 +16,7 @@ final class AlertChecker
         private readonly AlertRepository $alertRepository,
         private readonly AddressInfoProvider $addressInfoProvider,
         private readonly EntityManagerInterface $em,
+        private readonly AlertNotifier $alertNotifier,
     ) {
     }
 
@@ -34,6 +35,7 @@ final class AlertChecker
             if ($this->shouldTrigger($alert, $balanceBtc)) {
                 $alert->setTriggeredAt(new \DateTimeImmutable());
                 $alert->setIsActive(false);
+                $this->alertNotifier->notify($alert);
                 $this->em->flush();
             }
         }
