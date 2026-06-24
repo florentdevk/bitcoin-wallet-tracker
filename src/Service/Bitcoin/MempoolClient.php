@@ -21,14 +21,14 @@ final class MempoolClient
 
     public function getAddressInfo(string $address): array
     {
-        $cacheKey = 'mempool_address_' . $address;
+        $cacheKey = 'mempool_address_'.$address;
 
         return $this->cache->get($cacheKey, function (ItemInterface $item) use ($address): array {
             $item->expiresAfter(self::CACHE_TTL);
 
             $response = $this->httpClient->request(
                 'GET',
-                self::BASE_URL . '/address/' . $address
+                self::BASE_URL.'/address/'.$address
             );
 
             return $response->toArray();
@@ -37,14 +37,14 @@ final class MempoolClient
 
     public function getAddressTransactions(string $address): array
     {
-        $cacheKey = 'mempool_txs_' . $address;
+        $cacheKey = 'mempool_txs_'.$address;
 
         return $this->cache->get($cacheKey, function (ItemInterface $item) use ($address): array {
             $item->expiresAfter(self::CACHE_TTL);
 
             $response = $this->httpClient->request(
                 'GET',
-                self::BASE_URL . '/address/' . $address . '/txs'
+                self::BASE_URL.'/address/'.$address.'/txs'
             );
 
             return $response->toArray();

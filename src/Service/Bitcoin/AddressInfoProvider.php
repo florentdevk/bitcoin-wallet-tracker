@@ -31,11 +31,11 @@ final class AddressInfoProvider
     {
         $transactions = $this->mempoolClient->getAddressTransactions($address);
 
-        return array_map(fn(array $tx) => [
+        return array_map(fn (array $tx) => [
             'txid' => $tx['txid'],
             'confirmed' => $tx['status']['confirmed'] ?? false,
             'block_time' => isset($tx['status']['block_time'])
-                ? (new \DateTimeImmutable('@' . $tx['status']['block_time']))->format(\DateTimeInterface::ATOM)
+                ? (new \DateTimeImmutable('@'.$tx['status']['block_time']))->format(\DateTimeInterface::ATOM)
                 : null,
             'value_satoshis' => $this->calculateValue($tx, $address),
         ], $transactions);
