@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Alert;
+use App\Entity\User;
 use App\Entity\WatchedAddress;
 use App\Enum\AlertType;
 use App\Repository\AlertRepository;
@@ -22,7 +23,9 @@ final class AlertController extends AbstractController
     #[Route('', name: 'list', methods: ['GET'])]
     public function list(AlertRepository $repository): JsonResponse
     {
-        $alerts = $repository->findByUser($this->getUser());
+        /** @var User $user */
+        $user = $this->getUser();
+        $alerts = $repository->findByUser($user);
 
         return $this->json(array_map(static fn (Alert $a) => [
             'id' => $a->getId(),

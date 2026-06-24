@@ -11,6 +11,7 @@ final class AddressInfoProvider
     ) {
     }
 
+    /** @return array<string, mixed> */
     public function getBalance(string $address): array
     {
         $data = $this->mempoolClient->getAddressInfo($address);
@@ -27,20 +28,22 @@ final class AddressInfoProvider
         ];
     }
 
+    /** @return list<array<string, mixed>> */
     public function getTransactions(string $address): array
     {
         $transactions = $this->mempoolClient->getAddressTransactions($address);
 
-        return array_map(fn (array $tx) => [
+        return array_values(array_map(fn (array $tx) => [
             'txid' => $tx['txid'],
             'confirmed' => $tx['status']['confirmed'] ?? false,
             'block_time' => isset($tx['status']['block_time'])
                 ? (new \DateTimeImmutable('@'.$tx['status']['block_time']))->format(\DateTimeInterface::ATOM)
                 : null,
             'value_satoshis' => $this->calculateValue($tx, $address),
-        ], $transactions);
+        ], $transactions));
     }
 
+    /** @param array<string, mixed> $tx */
     private function calculateValue(array $tx, string $address): int
     {
         $received = 0;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Entity\WatchedAddress;
 use App\Repository\WatchedAddressRepository;
 use App\Security\Voter\AddressVoter;
@@ -26,7 +27,9 @@ final class AddressController extends AbstractController
     #[Route('', name: 'list', methods: ['GET'])]
     public function list(WatchedAddressRepository $repository): JsonResponse
     {
-        $addresses = $repository->findBy(['owner' => $this->getUser()]);
+        /** @var User $user */
+        $user = $this->getUser();
+        $addresses = $repository->findBy(['owner' => $user]);
 
         return $this->json(array_map(static fn (WatchedAddress $a) => [
             'id' => $a->getId(),
@@ -66,6 +69,7 @@ final class AddressController extends AbstractController
             return $this->json(['error' => 'Address is required'], Response::HTTP_BAD_REQUEST);
         }
 
+        /** @var User $user */
         $user = $this->getUser();
 
         if ($repository->findOneBy(['address' => $data['address'], 'owner' => $user])) {
