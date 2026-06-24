@@ -61,8 +61,8 @@ jobs:
       - name: Run PHP CS Fixer
         run: vendor/bin/php-cs-fixer fix --dry-run --diff
 
-      # - name: Run PHPStan
-      #   run: vendor/bin/phpstan analyse
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse
 
       - name: Setup test database
         run: |

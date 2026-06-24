@@ -19,6 +19,7 @@ final class MempoolClient
     ) {
     }
 
+    /** @return array<string, mixed> */
     public function getAddressInfo(string $address): array
     {
         $cacheKey = 'mempool_address_'.$address;
@@ -35,6 +36,7 @@ final class MempoolClient
         });
     }
 
+    /** @return array<string, mixed> */
     public function getAddressTransactions(string $address): array
     {
         $cacheKey = 'mempool_txs_'.$address;
