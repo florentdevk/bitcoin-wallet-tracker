@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Alert;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -18,28 +19,30 @@ class AlertRepository extends ServiceEntityRepository
         parent::__construct($registry, Alert::class);
     }
 
-    //    /**
-    //     * @return Alert[] Returns an array of Alert objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('a.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * @return Alert[]
+     */
+    public function findByUser(User $user): array
+    {
+        return $this->createQueryBuilder('a')
+            ->join('a.watchedAddress', 'wa')
+            ->andWhere('wa.owner = :user')
+            ->setParameter('user', $user)
+            ->orderBy('a.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 
-    //    public function findOneBySomeField($value): ?Alert
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    /**
+     * @return Alert[]
+     */
+    public function findActiveByWatchedAddress(int $watchedAddressId): array
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.watchedAddress = :id')
+            ->andWhere('a.isActive = true')
+            ->setParameter('id', $watchedAddressId)
+            ->getQuery()
+            ->getResult();
+    }
 }
