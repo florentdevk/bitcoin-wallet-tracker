@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Message\SyncAddressMessage;
+use App\Repository\WatchedAddressRepository;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
+use Symfony\Component\Scheduler\RecurringMessage;
 use Symfony\Component\Scheduler\Schedule as SymfonySchedule;
 use Symfony\Component\Scheduler\ScheduleProviderInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -13,18 +16,26 @@ use Symfony\Contracts\Cache\CacheInterface;
 class Schedule implements ScheduleProviderInterface
 {
     public function __construct(
-        private CacheInterface $cache,
+        private readonly CacheInterface $cache,
+        private readonly WatchedAddressRepository $watchedAddressRepository,
     ) {
     }
 
     public function getSchedule(): SymfonySchedule
     {
-        return (new SymfonySchedule())
-            ->stateful($this->cache) // ensure missed tasks are executed
-            ->processOnlyLastMissedRun(true) // ensure only last missed task is run
+        $schedule = (new SymfonySchedule())
+            ->stateful($this->cache)
+            ->processOnlyLastMissedRun(true);
 
-            // add your own tasks here
-            // see https://symfony.com/doc/current/scheduler.html#attaching-recurring-messages-to-a-schedule
-        ;
+        foreach ($this->watchedAddressRepository->findAll() as $address) {
+            $schedule->add(
+                RecurringMessage::every('5 minutes', new SyncAddressMessage(
+                    $address->getId(),
+                    $address->getAddress(),
+                ))
+            );
+        }
+
+        return $schedule;
     }
 }
