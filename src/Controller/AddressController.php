@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\WatchedAddress;
 use App\Repository\WatchedAddressRepository;
 use App\Security\Voter\AddressVoter;
+use App\Service\Bitcoin\AddressInfoProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,6 +18,11 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/api/addresses', name: 'address_')]
 final class AddressController extends AbstractController
 {
+    public function __construct(
+        private readonly AddressInfoProvider $addressInfoProvider,
+    ) {
+    }
+
     #[Route('', name: 'list', methods: ['GET'])]
     public function list(WatchedAddressRepository $repository): JsonResponse
     {
@@ -28,6 +34,24 @@ final class AddressController extends AbstractController
             'label' => $a->getLabel(),
             'createdAt' => $a->getCreatedAt()?->format(\DateTimeInterface::ATOM),
         ], $addresses));
+    }
+
+    #[Route('/{id}', name: 'show', methods: ['GET'])]
+    public function show(WatchedAddress $watchedAddress): JsonResponse
+    {
+        $this->denyAccessUnlessGranted(AddressVoter::VIEW, $watchedAddress);
+
+        $balance = $this->addressInfoProvider->getBalance($watchedAddress->getAddress());
+        $transactions = $this->addressInfoProvider->getTransactions($watchedAddress->getAddress());
+
+        return $this->json([
+            'id' => $watchedAddress->getId(),
+            'address' => $watchedAddress->getAddress(),
+            'label' => $watchedAddress->getLabel(),
+            'createdAt' => $watchedAddress->getCreatedAt()?->format(\DateTimeInterface::ATOM),
+            'balance' => $balance,
+            'transactions' => $transactions,
+        ]);
     }
 
     #[Route('', name: 'create', methods: ['POST'])]
