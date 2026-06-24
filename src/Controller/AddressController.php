@@ -22,7 +22,7 @@ final class AddressController extends AbstractController
     {
         $addresses = $repository->findBy(['owner' => $this->getUser()]);
 
-        return $this->json(array_map(fn(WatchedAddress $a) => [
+        return $this->json(array_map(static fn (WatchedAddress $a) => [
             'id' => $a->getId(),
             'address' => $a->getAddress(),
             'label' => $a->getLabel(),
