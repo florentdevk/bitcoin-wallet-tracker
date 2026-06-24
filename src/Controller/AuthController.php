@@ -41,7 +41,7 @@ final class AuthController extends AbstractController
         $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
 
         $errors = $validator->validate($user);
-        if (count($errors) > 0) {
+        if (\count($errors) > 0) {
             return $this->json(['error' => (string) $errors], Response::HTTP_BAD_REQUEST);
         }
 
