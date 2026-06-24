@@ -15,7 +15,7 @@ jobs:
       database:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: bitcoin_wallet_tracker_test
+          POSTGRES_DB: bitcoin_wallet_tracker
           POSTGRES_USER: app
           POSTGRES_PASSWORD: app
         ports:
@@ -64,8 +64,16 @@ jobs:
       # - name: Run PHPStan
       #   run: vendor/bin/phpstan analyse
 
+      - name: Setup test database
+        run: |
+          php bin/console doctrine:database:create --env=test --if-not-exists
+          php bin/console doctrine:migrations:migrate --env=test --no-interaction
+        env:
+          DATABASE_URL: postgresql://app:app@127.0.0.1:5432/bitcoin_wallet_tracker?serverVersion=16&charset=utf8
+          REDIS_URL: redis://127.0.0.1:6379
+
       - name: Run PHPUnit
         run: vendor/bin/phpunit
         env:
-          DATABASE_URL: postgresql://app:app@127.0.0.1:5432/bitcoin_wallet_tracker_test?serverVersion=16&charset=utf8
+          DATABASE_URL: postgresql://app:app@127.0.0.1:5432/bitcoin_wallet_tracker?serverVersion=16&charset=utf8
           REDIS_URL: redis://127.0.0.1:6379
